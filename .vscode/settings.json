@@ -1,0 +1,9 @@
+{
+    "java.project.resourceFolders": [
+        "src/res",
+        "src/assets"
+    ],
+    "json.schemas": [
+      
+    ]
+}
