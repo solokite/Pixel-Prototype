@@ -19,14 +19,14 @@ public class UI {
   GamePanel gp;
   Graphics2D g2;
   Font pixelFont, pixelFont80B;
-  Font fontTitle, menuFont;
+  Font fontTitle, menuFont, ingameFont;
   BufferedImage keyImage, emptyKey;
   public boolean messageOn = false;
   public String message = "";
   int messageCounter = 0;
   public boolean gameFinished = false;
   public int commandNum = 0;
-  BufferedImage grayCat, orangeCat;
+  BufferedImage grayCat, orangeCat, icon, paw_icon;
 
  
 
@@ -48,6 +48,7 @@ public class UI {
 
         Font fontFile = Font.createFont(Font.TRUETYPE_FONT, input);
         fontTitle = fontFile.deriveFont(Font.PLAIN, 120f);
+        ingameFont = fontFile.deriveFont(Font.PLAIN, 25f);
         menuFont = fontFile.deriveFont(Font.PLAIN, 50f);
 
     } catch (FontFormatException | IOException e) {
@@ -79,6 +80,8 @@ public class UI {
     try {
       grayCat = ImageIO.read(getClass().getResourceAsStream("/assets/sprites/player/grayCat.png"));
       orangeCat = ImageIO.read(getClass().getResourceAsStream("/assets/sprites/player/orangeCat.png"));
+      icon = ImageIO.read(getClass().getResourceAsStream("/assets/icon/iconLogo.png"));
+      paw_icon = ImageIO.read(getClass().getResourceAsStream("/assets/icon/paw_icon.png"));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -141,6 +144,7 @@ public class UI {
         if (commandNum == i) {
             int bgWidth = g2.getFontMetrics().stringWidth(option) + 20;
             int bgHeight = optionHeight;
+           
             g2.setColor(new Color(255, 165, 0, 180)); // semi-transparent orange
             g2.fillRoundRect(optionX - 10, optionY - optionHeight + 5, bgWidth, bgHeight, 20, 20);
             g2.setColor(Color.BLACK);
@@ -189,6 +193,18 @@ public class UI {
             g2.drawImage(keyImage, gp.tileSize / 2 + 100, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
             g2.drawImage(keyImage, gp.tileSize / 2 + 200, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
           }
+
+          String text;
+          int x;
+          int y;
+
+          g2.setFont(ingameFont);
+          g2.setColor(Color.ORANGE);
+          text = "Pixel Park";
+          x = 1550;
+          y = 50;
+          g2.drawString(text, x, y);
+          g2.drawImage(icon, x + 230, 5, 80, 80, null);
 
           // Message Notification
           
@@ -254,12 +270,14 @@ public class UI {
     int x = getXforCenteredText(title);
     int y = gp.tileSize * 3;
 
+    g2.drawImage(icon, 1480, 50, 200, 200, null);
+    
     //shadow text
     g2.setColor(Color.RED);
-    g2.drawString(title, x + 5, y + 5);
+    g2.drawString(title, x - 30, y + 5);
 
     g2.setColor(Color.ORANGE);
-    g2.drawString(title, x, y);
+    g2.drawString(title, x - 50, y);
 
     // ICON PLAYER ORANGE CAT
     x = 30;
@@ -280,7 +298,7 @@ public class UI {
     y = 550;
     g2.drawString(text, x, y);
     if (commandNum == 0) {
-      g2.drawString(">", x - gp.tileSize, y);
+       g2.drawImage(paw_icon, x - 110, y - 80, 100, 100, null);
     }
 
     text = "SETTINGS";
@@ -288,7 +306,7 @@ public class UI {
     y = 650;
     g2.drawString(text, x, y);
      if (commandNum == 1) {
-      g2.drawString(">", x - gp.tileSize, y);
+       g2.drawImage(paw_icon, x - 110, y - 80, 100, 100, null);
     }
 
     text = "QUIT";
@@ -296,7 +314,7 @@ public class UI {
     y = 750;
     g2.drawString(text, x, y);
      if (commandNum == 2) {
-      g2.drawString(">", x - gp.tileSize, y);
+       g2.drawImage(paw_icon, x - 110, y - 80, 100, 100, null);
     }
   }
 
@@ -310,6 +328,13 @@ public class UI {
     
     g2.drawString(text, x, y);
 
+    g2.setFont(fontTitle);
+    g2.setColor(Color.ORANGE);
+    text = "Pixel Park";
+    x = getXforCenteredText(text);
+    y = gp.screenHeight / 2 - (gp.tileSize * 7);
+    g2.drawString(text, x, y);
+
     g2.setColor(Color.ORANGE);
     g2.setFont(pixelFont);
 
@@ -318,7 +343,7 @@ public class UI {
     y = 500;
     g2.drawString(text, x, y);
     if (commandNum == 0) {
-      g2.drawString("> ", x - gp.tileSize, y);
+       g2.drawImage(paw_icon, x - 100, y - 50, 60, 60, null);
     }
 
     text = "RESTART";
@@ -326,7 +351,7 @@ public class UI {
     y = 600;
     g2.drawString(text, x, y);
     if (commandNum == 1) {
-      g2.drawString("> ", x - gp.tileSize, y);
+       g2.drawImage(paw_icon, x - 100, y - 50, 60, 60, null);
     }
 
     text = "MAIN MENU";
@@ -334,7 +359,7 @@ public class UI {
     y = 700;
     g2.drawString(text, x, y);
     if (commandNum == 2) {
-      g2.drawString("> ", x - gp.tileSize, y);
+      g2.drawImage(paw_icon, x - 100, y - 50, 60, 60, null);
     }
 
     text = "QUIT";
@@ -342,13 +367,13 @@ public class UI {
     y = 800;
     g2.drawString(text, x, y);
     if (commandNum == 3) {
-      g2.drawString("> ", x - gp.tileSize, y);
+       g2.drawImage(paw_icon, x - 100, y - 50, 60, 60, null);
     }
 
   }
 
   public void loadNextLevel() {
-    
+
   }
 
   public int getXforCenteredText(String text) {

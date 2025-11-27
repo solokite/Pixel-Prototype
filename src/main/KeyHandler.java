@@ -21,7 +21,7 @@ public void keyPressed(KeyEvent e) {
 
     int code = e.getKeyCode();
 
-		// LEVEL CLEARED STATE
+    // LEVEL CLEARED STATE
 if (gp.gameState == gp.levelClearedState) {
 
     // Move selector UP
@@ -38,28 +38,20 @@ if (gp.gameState == gp.levelClearedState) {
 
     // CONFIRM SELECTION
     if (code == KeyEvent.VK_ENTER) {
-        
         // NEXT LEVEL
         if (gp.ui.commandNum == 0) {
-            // gp.loadNextLevel();
-						
-            gp.gameState = gp.playState;
-        } 
-				if (gp.ui.commandNum == 1) {
-					gp.gameState = gp.titleState;
-					
-				}
-
+            gp.loadNextLevel();
+        } else if (gp.ui.commandNum == 1) {
+			gp.gameState = gp.titleState;
+		}
         // EXIT
-        if (gp.ui.commandNum == 2) {
+        else if (gp.ui.commandNum == 2) {
             System.exit(0);
         }
     }
 
     return; // IMPORTANT → block movement
 }
-
-
     // TITLE STATE
     if (gp.gameState == gp.titleState) {
         if (code == KeyEvent.VK_W) {

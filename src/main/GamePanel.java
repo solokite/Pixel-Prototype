@@ -70,6 +70,16 @@ public final int playState = 1;
 public final int pauseState = 2;
 public final int levelClearedState = 3;
 
+// Level Management
+public int currentLevel = 1;
+private final String[] levelMaps = {
+    "/res/maps/level1map.txt",
+    "/res/maps/map01.txt",
+    "/res/maps/map02.txt",
+    "/res/maps/map05.csv",
+    "/res/maps/world01.txt"
+}; // Add more levels as needed
+
 public GamePanel() {
     this.setPreferredSize(new Dimension(screenWidth, screenHeight));
     this.setBackground(Color.BLACK);
@@ -84,16 +94,42 @@ public void setupGame() {
 }
 
 public void resetGame() {
+    loadLevel(1); // reset to level 1
+}
+
+public void loadLevel(int levelNumber) {
+    if (levelNumber < 1 || levelNumber > levelMaps.length) {
+        System.err.println("Level " + levelNumber + " does not exist.");
+        return;
+    }
+    
+    currentLevel = levelNumber;
+    
+    // Clear objects
+    for (int i = 0; i < obj.length; i++) {
+        obj[i] = null;
+    }
+    
+    // Load the map for this level
+    tileM.loadMap(levelMaps[levelNumber - 1]);
+    
+    // Reset player state
     player.hasKey = 0;
-    player.worldX = tileSize * 5;
-    player.worldY = tileSize * 5;
-
-    aSetter.setObject();
-
+    player.worldX = tileSize * 4;
+    player.worldY = tileSize * 23;
+    
+    // Place objects specific to this level
+    aSetter.setObjectsForLevel(levelNumber);
+    
+    // Reset UI state
     ui.messageOn = false;
     ui.messageCounter = 0;
     gameState = playState;
     ui.gameFinished = false;
+}
+
+public void loadNextLevel() {
+    loadLevel(currentLevel + 1);
 }
 
 public void startGameThread() {
