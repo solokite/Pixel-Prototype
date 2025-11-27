@@ -12,28 +12,31 @@ public class CollisionChecker {
 
     public void checkTile(Entity entity) {
 
-        // Vertical collision: handles standing on blocks or hitting ceilings
+        // Get solid area boundaries
         double leftX = entity.worldX + entity.solidArea.x;
         double rightX = entity.worldX + entity.solidArea.x + entity.solidArea.width;
         double topY = entity.worldY + entity.solidArea.y;
         double bottomY = entity.worldY + entity.solidArea.y + entity.solidArea.height;
 
-        int leftCol = (int)(leftX / gp.finalSize);
-        int rightCol = (int)(rightX / gp.finalSize);
+        int leftCol = (int)(leftX / gp.tileSize);
+        int rightCol = (int)(rightX / gp.tileSize);
+        
 
         // Check DOWN collision
         double futureBottomY = bottomY + entity.yVelocity;
-        int bottomRow = (int)(futureBottomY / gp.finalSize);
+        int futureBottomRow = (int)(futureBottomY / gp.tileSize);
         boolean landed = false;
 
         for (int col = leftCol; col <= rightCol; col++) {
-            int tileNum = gp.tileM.mapTileNum[col][bottomRow];
-            if (gp.tileM.tile[tileNum].collision) {
-                entity.worldY = bottomRow * gp.finalSize - entity.solidArea.height - entity.solidArea.y;
-                entity.yVelocity = 0;
-                entity.jumping = false;
-                landed = true;
-                break;
+            if (col >= 0 && col < gp.maxWorldCol && futureBottomRow >= 0 && futureBottomRow < gp.maxWorldRow) {
+                int tileNum = gp.tileM.mapTileNum[col][futureBottomRow];
+                if (tileNum >= 0 && tileNum < gp.tileM.tile.length && gp.tileM.tile[tileNum] != null && gp.tileM.tile[tileNum].collision) {
+                    entity.worldY = futureBottomRow * gp.tileSize - entity.solidArea.height - entity.solidArea.y;
+                    entity.yVelocity = 0;
+                    entity.jumping = false;
+                    landed = true;
+                    break;
+                }
             }
         }
 
@@ -43,12 +46,33 @@ public class CollisionChecker {
 
         // Check UP collision
         double futureTopY = topY + entity.yVelocity;
-        int topRow = (int)(futureTopY / gp.finalSize);
+        int futureTopRow = (int)(futureTopY / gp.tileSize);
         for (int col = leftCol; col <= rightCol; col++) {
-            int tileNum = gp.tileM.mapTileNum[col][topRow];
-            if (gp.tileM.tile[tileNum].collision) {
-                entity.yVelocity = 0;
-                break;
+            if (col >= 0 && col < gp.maxWorldCol && futureTopRow >= 0 && futureTopRow < gp.maxWorldRow) {
+                int tileNum = gp.tileM.mapTileNum[col][futureTopRow];
+                if (tileNum >= 0 && tileNum < gp.tileM.tile.length && gp.tileM.tile[tileNum] != null && gp.tileM.tile[tileNum].collision) {
+                    entity.yVelocity = 0;
+                    break;
+                }
+            }
+        }
+    }
+
+    public void checkTileHorizontal(Entity entity, String direction) {
+        // Check map boundaries to prevent player from leaving the world
+        if (direction.equals("left")) {
+            double futureLeftX = entity.worldX + entity.solidArea.x - entity.speed;
+            if (futureLeftX < 0) {
+                entity.collisionOn = true;
+            } else {
+                entity.collisionOn = false;
+            }
+        } else if (direction.equals("right")) {
+            double futureRightX = entity.worldX + entity.solidArea.x + entity.solidArea.width + entity.speed;
+            if (futureRightX > gp.worldWidth) {
+                entity.collisionOn = true;
+            } else {
+                entity.collisionOn = false;
             }
         }
     }

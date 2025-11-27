@@ -11,6 +11,7 @@ public class Entity {
 	
 	public boolean jumping = false;
 	public double jumpSpeed = -20;
+	public double xVelocity = 0;
 	public double yVelocity = 0;
 	public double gravity = 0.9;
 	public double groundY;

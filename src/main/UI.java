@@ -38,7 +38,7 @@ public class UI {
         }
 
         Font fontFile = Font.createFont(Font.TRUETYPE_FONT, input);
-        fontTitle = fontFile.deriveFont(Font.PLAIN, 100f);
+        fontTitle = fontFile.deriveFont(Font.PLAIN, 120f);
         menuFont = fontFile.deriveFont(Font.PLAIN, 50f);
 
     } catch (FontFormatException | IOException e) {
@@ -153,7 +153,7 @@ public class UI {
           // Normal gameplay UI
           g2.setFont(pixelFont);
           g2.setColor(Color.BLACK);
-          g2.drawImage(keyImage, gp.finalSize / 2, gp.finalSize / 2, gp.finalSize, gp.finalSize, null);
+          g2.drawImage(keyImage, gp.tileSize / 2, gp.tileSize / 2, gp.tileSize, gp.tileSize, null);
           g2.drawString(" = " + gp.player.hasKey, 74, 80);
 
           // Message Notification
@@ -169,7 +169,7 @@ public class UI {
             
             // Center the rectangle above player
             int rectX = gp.screenWidth / 2 - (textWidth + padding * 2) / 2;
-            int rectY = gp.finalSize; // above player; adjust as needed
+            int rectY = gp.tileSize; // above player; adjust as needed
             int rectWidth = textWidth + padding * 2;
             int rectHeight = textHeight + padding;
             
@@ -216,7 +216,7 @@ public class UI {
     
     String title = "Pixel Park";
     int x = getXforCenteredText(title);
-    int y = gp.finalSize * 3;
+    int y = gp.tileSize * 3;
 
     //shadow text
     g2.setColor(Color.RED);
@@ -239,7 +239,7 @@ public class UI {
     y = 550;
     g2.drawString(text, x, y);
     if (commandNum == 0) {
-      g2.drawString(">", x - gp.finalSize, y);
+      g2.drawString(">", x - gp.tileSize, y);
     }
 
     text = "SETTINGS";
@@ -247,7 +247,7 @@ public class UI {
     y = 650;
     g2.drawString(text, x, y);
      if (commandNum == 1) {
-      g2.drawString(">", x - gp.finalSize, y);
+      g2.drawString(">", x - gp.tileSize, y);
     }
 
     text = "QUIT";
@@ -255,7 +255,7 @@ public class UI {
     y = 750;
     g2.drawString(text, x, y);
      if (commandNum == 2) {
-      g2.drawString(">", x - gp.finalSize, y);
+      g2.drawString(">", x - gp.tileSize, y);
     }
   }
 
@@ -265,7 +265,7 @@ public class UI {
     String text = "PAUSED";
 
     int x = getXforCenteredText(text);
-    int y = gp.screenHeight / 2 - (gp.finalSize * 4);
+    int y = gp.screenHeight / 2 - (gp.tileSize * 4);
     
     g2.drawString(text, x, y);
   }

@@ -1,4 +1,5 @@
 package main;
+
 import java.awt.*;
 import javax.swing.*;
 
@@ -6,159 +7,164 @@ import entity.Player;
 import object.SuperObject;
 import tile.TileManager;
 
-public class GamePanel extends JPanel implements Runnable{
-	public final int tileSize = 16; // original tile size
-	public final int scale = 4;
-	
-	public int finalSize = tileSize * scale;
-	public int maxScreenCol = 30;
-	public int maxScreenRow = 20;
-	public int screenWidth = finalSize * maxScreenCol;
-	public int screenHeight = finalSize * maxScreenRow;
-	
+public class GamePanel extends JPanel implements Runnable {
+// Original Tile Settings
+public final int originalTileSize = 16;
+public final int scale = 4;
+public final int tileSize = originalTileSize * scale;
 
 
-	// World Settings
-	public final int maxWorldCol = 50;
-	public final int maxWorldRow = 50;
-	public final int worldWidth = finalSize * maxWorldCol;
-	public final int worldHeight = finalSize * maxWorldRow;
-	
+// Screen Settings
+public final int maxScreenCol = 30;
+public final int maxScreenRow = 20;
+public int screenWidth = tileSize * maxScreenCol;
+public int screenHeight = tileSize * maxScreenRow;
 
-	
-	// FPS
-	int FPS = 60;
-	
-	TileManager tileM = new TileManager(this);
-	KeyHandler keyH = new KeyHandler(this);
-	public UI ui = new UI(this);
-	public CollisionChecker cChecker = new CollisionChecker(this);
-	
+// World Settings
+public final int maxWorldCol = 50;
+public final int maxWorldRow = 50;
+public final int worldWidth = tileSize * maxWorldCol;
+public final int worldHeight = tileSize * maxWorldRow;
 
+// FPS
+private final int FPS = 60;
 
-	public Player player = new Player(this, keyH);
-	public SuperObject obj[] = new SuperObject[10];
-	public AssetSetter aSetter = new AssetSetter(this);
-	Thread gameThread;
+// Managers
+TileManager tileM = new TileManager(this);
+    public TileManager getTileManager() { return tileM; }
+KeyHandler keyH = new KeyHandler(this);
+public UI ui = new UI(this);
+public CollisionChecker cChecker = new CollisionChecker(this);
+public AssetSetter aSetter = new AssetSetter(this);
 
-	// Game STate
-	public int gameState;	
-	public final int titleState = 0;
-	public final int playState = 1;
-	public final int pauseState = 2;
-	public final int levelClearedState = 3;
+// Camera offset (world coordinates of top-left of screen)
+public int cameraX = 0;
+public int cameraY = 0;
 
-	
-	public GamePanel() {
-		
-		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-		this.setBackground(Color.BLACK);
-		this.setDoubleBuffered(true);
-		this.addKeyListener(keyH);
-		this.setFocusable(true);
-		
-	}
-
-	public void resetGame() {
-    // Reset player
-    player.hasKey = 0;
-    player.worldX = 50; // starting x position
-    player.worldY = 50; // starting y position
+private void updateCamera() {
+    // Camera follows player, staying centered unless at world edge
+    int playerScreenX = screenWidth / 2 - tileSize / 2;
+    int playerScreenY = screenHeight / 2 - tileSize / 2;
     
-    // Reset objects
-    aSetter.setObject(); // place objects again
-    for (int i = 0; i < obj.length; i++) {
-        if (obj[i] != null) {
-            obj[i] = obj[i]; // if your objects have a collected flag
-        }
-    }
+    cameraX = (int) player.worldX - playerScreenX;
+    cameraY = (int) player.worldY - playerScreenY;
+    
+    // Clamp camera to world bounds
+    if (cameraX < 0) cameraX = 0;
+    if (cameraY < 0) cameraY = 0;
+    if (cameraX + screenWidth > worldWidth) cameraX = worldWidth - screenWidth;
+    if (cameraY + screenHeight > worldHeight) cameraY = worldHeight - screenHeight;
+}
 
-    // Reset game variables
+// Entities
+public Player player = new Player(this, keyH);
+public SuperObject[] obj = new SuperObject[10];
+
+// Game Thread
+private Thread gameThread;
+
+// Game States
+public int gameState;
+public final int titleState = 0;
+public final int playState = 1;
+public final int pauseState = 2;
+public final int levelClearedState = 3;
+
+public GamePanel() {
+    this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+    this.setBackground(Color.BLACK);
+    this.setDoubleBuffered(true);
+    this.addKeyListener(keyH);
+    this.setFocusable(true);
+}
+
+public void setupGame() {
+    aSetter.setObject();
+    gameState = titleState;
+}
+
+public void resetGame() {
+    player.hasKey = 0;
+    player.worldX = tileSize * 5;
+    player.worldY = tileSize * 5;
+
+    aSetter.setObject();
+
     ui.messageOn = false;
     ui.messageCounter = 0;
     gameState = playState;
     ui.gameFinished = false;
 }
 
-	
-	public void setupGame() {
-		aSetter.setObject();
-		gameState = titleState;
-	}
-	
-	public void startGameThread() {
-		gameThread = new Thread(this);
-		gameThread.start();
-	}
-
-	@Override
-	public void run() {
-		
-		double drawInterval = 1000000000 / FPS;
-		double delta = 0;
-		long lastTime = System.nanoTime();
-		long currentTime;
-		long timer = 0;
-		int drawCount = 0;
-		
-		
-		while (gameThread != null) {
-			
-			currentTime = System.nanoTime();
-			
-			delta += (currentTime - lastTime) / drawInterval;
-			timer += (currentTime - lastTime);
-			lastTime = currentTime;
-			
-			if (delta >= 1) {
-				update();
-				repaint();
-				delta--;
-				drawCount++;
-			}
-			
-			if (timer >= 1000000000) {
-				System.out.println("FPS: " + drawCount);
-				drawCount = 0;
-				timer = 0;
-			}
-		}
-	}
-	public void update() {
-		if (gameState == playState) {
-			player.update();
-		}
-		if (gameState == pauseState) {
-			
-		}
-	
-	}
-	public void paintComponent(Graphics g) {
-		
-		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D)g;
-
-		// Title Screen
-		if (gameState == titleState ) {
-			ui.draw(g2);
-		} else {
-				// tile
-			tileM.draw(g2);
-
-			// object
-			for (int i = 0; i < obj.length; i ++) {
-				if(obj[i] != null) {
-					obj[i].draw(g2, this);
-				}
-			}
-
-			// player
-			player.draw(g2);
-
-			// UI
-			ui.draw(g2);
-
-			g2.dispose();
-		}
-	}
+public void startGameThread() {
+    gameThread = new Thread(this);
+    gameThread.start();
 }
+
+@Override
+public void run() {
+    double drawInterval = 1_000_000_000.0 / FPS;
+    double delta = 0;
+    long lastTime = System.nanoTime();
+    long timer = 0;
+    int drawCount = 0;
+
+    while (gameThread != null) {
+        long currentTime = System.nanoTime();
+        delta += (currentTime - lastTime) / drawInterval;
+        timer += (currentTime - lastTime);
+        lastTime = currentTime;
+
+        if (delta >= 1) {
+            update();
+            updateCamera();
+            repaint();
+            delta--;
+            drawCount++;
+        }
+
+        if (timer >= 1_000_000_000) {
+            System.out.println("FPS: " + drawCount);
+            drawCount = 0;
+            timer = 0;
+        }
+    }
+}
+
+public void update() {
+    if (gameState == playState) {
+        player.update();
+        for (SuperObject o : obj) {
+            if (o != null) o.update();
+        }
+    }
+}
+
+@Override
+public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    Graphics2D g2 = (Graphics2D) g;
+    
+    if (gameState == titleState) {
+        ui.draw(g2);
+    } else {
+        tileM.draw(g2);
+
+        for (SuperObject o : obj) {
+            if (o != null) o.draw(g2, this);
+        }
+
+        player.draw(g2);
+
+        ui.draw(g2);
+    }
+
+    g2.dispose();
+}
+
+// Optional: Fullscreen scaling
+
+}
+
+
+

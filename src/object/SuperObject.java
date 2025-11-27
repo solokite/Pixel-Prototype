@@ -7,24 +7,29 @@ import java.awt.image.BufferedImage;
 import main.GamePanel;
 
 public class SuperObject {
-  
-  public BufferedImage image;
-  public String name;
-  public boolean collision = false;
-  public int worldX, worldY;
-  public Rectangle solidArea = new Rectangle(0, 0, 64, 64);
-  public int solidAreaDefaultX = 0;
-  public int solidAreaDefaultY = 0;
+    public BufferedImage image;
+    public String name;
+    public boolean collision = false;
+    public int worldX, worldY;
+    public Rectangle solidArea = new Rectangle(0, 0, 64, 64);
+    public int solidAreaDefaultX = 0;
+    public int solidAreaDefaultY = 0;
 
-  public void draw(Graphics2D g2, GamePanel gp) {
+    // Add this method
+    public void update() {
+        // For now, nothing happens
+        // Later you can add animation or movement logic
+    }
 
-    int screenX = worldX - gp.player.worldX + gp.player.screenX;
-		int  screenY = worldY - gp.player.worldY + gp.player.screenY;
+    public void draw(Graphics2D g2, GamePanel gp) {
+        int screenX = (int)(worldX - gp.cameraX);
+        int screenY = (int)(worldY - gp.cameraY);
 
-    if (worldX + gp.finalSize > gp.player.worldX - gp.player.screenX && worldX - gp.finalSize < gp.player.worldX + gp.player.screenX &&
-				worldY + gp.finalSize > gp.player.worldY - gp.player.screenY && worldY - gp.finalSize < gp.player.worldY + gp.player.screenY) {
-				
-				g2.drawImage(image, screenX, screenY, gp.finalSize, gp.finalSize, null);
-			}
-  }
+        // Only draw if visible on screen
+        if (screenX + gp.tileSize > 0 && screenX < gp.screenWidth &&
+            screenY + gp.tileSize > 0 && screenY < gp.screenHeight) {
+
+            g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        }
+    }
 }

@@ -1,55 +1,95 @@
 package tile;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
 import main.GamePanel;
+import main.UtilityTool;
 
 public class TileManager {
 	
 	GamePanel gp;
 	public Tile[] tile;
 	public int mapTileNum[][];
+	ArrayList<String> fileNames = new ArrayList<>();
+	ArrayList<String> collisionStatus = new ArrayList<>();
 
 	public TileManager(GamePanel gp) {
 		
 		this.gp = gp;
-		this.gp = gp;
-		tile = new Tile[10];
+		
+		
+
+
+		tile = new Tile[20];
 		mapTileNum = new int [gp.maxWorldCol][gp.maxWorldRow];
 		getTileImage();
-		loadMap("/res/maps/world01.txt");
-	}
-		// READ TILE DATA
-		
-		public void getTileImage() {
-			try {
-			
-			tile[0] = new Tile();
-			tile[0].image = ImageIO.read(getClass().getResourceAsStream("/assets/tiles/white_background.png"));
-			
-			tile[1] = new Tile();
-			tile[1].image = ImageIO.read(getClass().getResourceAsStream("/assets/tiles/pixelGrass32x32.png"));
-			tile[1].collision = true;
+		loadMap("/res/maps/level1map.txt");
 
-			tile[2] = new Tile();
-			tile[2].image = ImageIO.read(getClass().getResourceAsStream("/assets/tiles/pixelDirt32x32.png"));
-			tile[2].collision = true;
+
+	}
+	
+	public void getTileImage() {
+		setup(0, "0", false);
+		setup(1, "1", true);
+		setup(2, "2", false);
+		setup(3, "3", false);
+		setup(4, "4", false);
+		setup(5, "5", false);
+		setup(6, "6", false);
+		setup(7, "7", false);
+		setup(8, "8", true);
+		setup(9, "9", true);
+		setup(10, "10", true);
+		setup(11, "11", true);
+		setup(12, "12", true);
+		setup(13, "13", true);
+		setup(14, "14", false);
+		setup(15, "15", false);
+	}
+	
+	public void setup(int index, String imageName, boolean collision) {
+		UtilityTool uTool = new UtilityTool();
+
+		try {
+			tile[index] = new Tile();
+			tile[index].image = ImageIO.read(getClass().getResourceAsStream("/assets/tilesMap/" + imageName + ".png"));
+			tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
+			tile[index].collision = collision;
 			
-			//
-			
+			// By default, if collision is true, all sides have collision
+			if (collision) {
+				tile[index].collisionTop = true;
+				tile[index].collisionBottom = true;
+				tile[index].collisionLeft = true;
+				tile[index].collisionRight = true;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-		
 	
+	// New method for directional collision setup
+	// Example: setDirectionalCollision(8, "8", true, true, false, false) = only top and bottom collision
+	public void setDirectionalCollision(int index, String imageName, boolean top, boolean bottom, boolean left, boolean right) {
+		UtilityTool uTool = new UtilityTool();
+
+		try {
+			tile[index] = new Tile(top, bottom, left, right);
+			tile[index].image = ImageIO.read(getClass().getResourceAsStream("/assets/tilesMap/" + imageName + ".png"));
+			tile[index].image = uTool.scaleImage(tile[index].image, gp.tileSize, gp.tileSize);
+			tile[index].collision = (top || bottom || left || right); // true if any side has collision
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public void loadMap(String filepath) {
 		try {
@@ -87,33 +127,22 @@ public class TileManager {
 		int worldCol = 0;
 		int worldRow = 0;
 		
-		
-		
 		while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-			 
+			
 			int tileNum = mapTileNum[worldCol][worldRow];
 			
-			int worldX = worldCol * gp.finalSize;
-			int worldY = worldRow * gp.finalSize;
-			int screenX = worldX - gp.player.worldX + gp.player.screenX;
-			int  screenY = worldY - gp.player.worldY + gp.player.screenY;
-
-
-			// stopping from going out camera
-			if(gp.player.screenX > gp.player.worldX) {
-				screenX = worldX;
-			}
-			if (gp.player.screenY > gp.player.worldY) {
-				screenY = worldY;
-			}
-			int rightOffset = gp.screenWidth - gp.player.screenX;
-			if (rightOffset > gp.worldWidth - gp.player.worldX) {}
+			int worldX = worldCol * gp.tileSize;
+			int worldY = worldRow * gp.tileSize;
+			int screenX = (int)(worldX - gp.cameraX);
+			int screenY = (int)(worldY - gp.cameraY);
 			
-			if (worldX + gp.finalSize > gp.player.worldX - gp.player.screenX && worldX - gp.finalSize < gp.player.worldX + gp.player.screenX &&
-				worldY + gp.finalSize > gp.player.worldY - gp.player.screenY && worldY - gp.finalSize < gp.player.worldY + gp.player.screenY) {
+			// Only draw tiles that are visible on screen
+			if (screenX + gp.tileSize > 0 && screenX < gp.screenWidth &&
+				screenY + gp.tileSize > 0 && screenY < gp.screenHeight) {
 				
-				g2.drawImage(tile[tileNum].image, (int)screenX, (int)screenY, gp.finalSize, gp.finalSize, null);
+				g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
 			}
+			
 			worldCol++; 
 			
 			if (worldCol == gp.maxWorldCol) {
