@@ -79,17 +79,41 @@ if (gp.gameState == gp.levelClearedState) {
         }
     }
 
-    // 🔥 TOGGLE PAUSE ANYTIME DURING GAMEPLAY
+    // PAUSE STATE
     if (code == KeyEvent.VK_P) {
         if (gp.gameState == gp.playState) {
             gp.gameState = gp.pauseState;
-        } 
-        else if (gp.gameState == gp.pauseState) {
+        } else if (gp.gameState == gp.pauseState) {
             gp.gameState = gp.playState;
         }
         return; // prevent overlapping controls
     }
 
+    // PAUSE STATE MENU HANDLING
+    if (gp.gameState == gp.pauseState) {
+        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+            gp.ui.commandNum--;
+            if (gp.ui.commandNum < 0) gp.ui.commandNum = 3;
+        }
+        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+            gp.ui.commandNum++;
+            if (gp.ui.commandNum > 3) gp.ui.commandNum = 0;
+        }
+
+        if (code == KeyEvent.VK_ENTER) {
+            if (gp.ui.commandNum == 0) {
+                gp.gameState = gp.playState;
+            } else if (gp.ui.commandNum == 1) {
+                gp.resetGame();
+                gp.gameState = gp.playState;
+            } else if (gp.ui.commandNum == 2) {
+                gp.gameState = gp.titleState;
+            } else if (gp.ui.commandNum == 3) {
+                System.exit(0);
+            }
+        }
+        return;
+    }
     // GAMEPLAY CONTROLS
     if (gp.gameState == gp.playState) {
 
@@ -120,3 +144,4 @@ if (gp.gameState == gp.levelClearedState) {
 	}
 
 }
+

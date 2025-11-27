@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 
+import javax.imageio.ImageIO;
+
 import object.OBJ_Key;
+
 
 public class UI {
   
@@ -17,16 +20,22 @@ public class UI {
   Graphics2D g2;
   Font pixelFont, pixelFont80B;
   Font fontTitle, menuFont;
-  BufferedImage keyImage;
+  BufferedImage keyImage, emptyKey;
   public boolean messageOn = false;
   public String message = "";
   int messageCounter = 0;
   public boolean gameFinished = false;
   public int commandNum = 0;
+  BufferedImage grayCat, orangeCat;
+
  
+
+  
 
   double playTime;
   DecimalFormat dFormat = new DecimalFormat("#0.00");
+
+  
 
   public void titleFont() {
     try {
@@ -52,6 +61,9 @@ public class UI {
     titleFont();
     OBJ_Key key = new OBJ_Key();
     keyImage = key.image;
+    emptyKey = key.emptyKeyImage;
+
+
     try {
       InputStream is = getClass().getResourceAsStream("/assets/fonts/Font_Pixel.ttf");
       Font font = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -60,6 +72,15 @@ public class UI {
     } catch (Exception e) {
       e.printStackTrace();
       pixelFont = new Font("Arial", Font.PLAIN, 40);
+    }
+  }
+
+  public void getIconImage() {
+    try {
+      grayCat = ImageIO.read(getClass().getResourceAsStream("/assets/sprites/player/grayCat.png"));
+      orangeCat = ImageIO.read(getClass().getResourceAsStream("/assets/sprites/player/orangeCat.png"));
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
@@ -148,13 +169,26 @@ public class UI {
     if (gp.gameState == gp.playState) {
       if (gameFinished) {
         // Show the level cleared menu
-        gp.gameState = gp.levelClearedState;  // Set state ONCE
+        gp.gameState = gp.levelClearedState;  
       } else {
           // Normal gameplay UI
           g2.setFont(pixelFont);
           g2.setColor(Color.BLACK);
-          g2.drawImage(keyImage, gp.tileSize / 2, gp.tileSize / 2, gp.tileSize, gp.tileSize, null);
-          g2.drawString(" = " + gp.player.hasKey, 74, 80);
+          g2.drawImage(emptyKey, gp.tileSize / 2, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+          g2.drawImage(emptyKey, gp.tileSize / 2 + 100, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+          g2.drawImage(emptyKey, gp.tileSize / 2 + 200, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+          //g2.drawString(" = " + gp.player.hasKey, 74, 80);
+          
+          if (gp.player.hasKey == 1) {
+            g2.drawImage(keyImage, gp.tileSize / 2, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+          } else if (gp.player.hasKey == 2) {
+            g2.drawImage(keyImage, gp.tileSize / 2, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+            g2.drawImage(keyImage, gp.tileSize / 2 + 100, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+          } else if (gp.player.hasKey == 3) {
+            g2.drawImage(keyImage, gp.tileSize / 2, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+            g2.drawImage(keyImage, gp.tileSize / 2 + 100, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+            g2.drawImage(keyImage, gp.tileSize / 2 + 200, gp.tileSize / 2, gp.tileSize * 2, gp.tileSize * 2, null);
+          }
 
           // Message Notification
           
@@ -208,6 +242,8 @@ public class UI {
 
   public void drawTitleScreen() {
 
+    getIconImage();
+
     g2.setColor(Color.WHITE);
     g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
@@ -225,10 +261,15 @@ public class UI {
     g2.setColor(Color.ORANGE);
     g2.drawString(title, x, y);
 
-    // ICON PLAYER
+    // ICON PLAYER ORANGE CAT
     x = 30;
-    y = 700;
-    g2.drawImage(gp.player.idle4, x, y, 500, 500, null);
+    y = 650;
+    g2.drawImage(orangeCat, x, y, 500, 500, null);
+
+    // ICON GRAY CAT
+    x = 1350;
+    y = 650;
+    g2.drawImage(grayCat, x, y, 500, 500, null);
     
 
     // MENU
@@ -261,13 +302,53 @@ public class UI {
 
   public void drawPauseState() {
     g2.setFont(pixelFont80B);
-    g2.setColor(Color.ORANGE);
+    g2.setColor(Color.RED);
     String text = "PAUSED";
 
     int x = getXforCenteredText(text);
     int y = gp.screenHeight / 2 - (gp.tileSize * 4);
     
     g2.drawString(text, x, y);
+
+    g2.setColor(Color.ORANGE);
+    g2.setFont(pixelFont);
+
+    text = "RESUME";
+    x = getXforCenteredText(text);
+    y = 500;
+    g2.drawString(text, x, y);
+    if (commandNum == 0) {
+      g2.drawString("> ", x - gp.tileSize, y);
+    }
+
+    text = "RESTART";
+    x = getXforCenteredText(text);
+    y = 600;
+    g2.drawString(text, x, y);
+    if (commandNum == 1) {
+      g2.drawString("> ", x - gp.tileSize, y);
+    }
+
+    text = "MAIN MENU";
+    x = getXforCenteredText(text);
+    y = 700;
+    g2.drawString(text, x, y);
+    if (commandNum == 2) {
+      g2.drawString("> ", x - gp.tileSize, y);
+    }
+
+    text = "QUIT";
+    x = getXforCenteredText(text);
+    y = 800;
+    g2.drawString(text, x, y);
+    if (commandNum == 3) {
+      g2.drawString("> ", x - gp.tileSize, y);
+    }
+
+  }
+
+  public void loadNextLevel() {
+    
   }
 
   public int getXforCenteredText(String text) {

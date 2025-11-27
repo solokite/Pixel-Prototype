@@ -161,10 +161,14 @@ public void pickUpObject(int i) {
             case "Key":
                 hasKey++;
                 gp.obj[i] = null;
-                gp.ui.showMessage("Player 1 got the Key");
+                gp.ui.showMessage("You got a Key!");
                 break;
             case "Door":
-                if (hasKey > 0) {
+                if (hasKey == 1) {
+                    gp.ui.showMessage("You need 2 more Keys.");
+                } else if (hasKey == 2) {
+                    gp.ui.showMessage("You need 1 more Keys.");
+                } else if (hasKey == 3) {
                     gp.obj[i] = null;
                     hasKey--;
                     gp.ui.showMessage("Level 1: Completed!");
@@ -173,6 +177,7 @@ public void pickUpObject(int i) {
                     gp.ui.showMessage("You need a Key.");
                 }
                 break;
+            
         }
     }
 }

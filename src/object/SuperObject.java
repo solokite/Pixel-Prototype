@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import main.GamePanel;
 
 public class SuperObject {
-    public BufferedImage image;
+    public BufferedImage image, emptyKeyImage;
     public String name;
     public boolean collision = false;
     public int worldX, worldY;
